@@ -1,0 +1,407 @@
+{
+  "name": "Duyuru takip",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://bilgisayarmf.firat.edu.tr/announcements-all",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        192,
+        0
+      ],
+      "id": "a0db6ca1-96d9-4720-9618-b17704958103",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// HTTP Request'ten gelen veri\nconst input = $input.first().json.body || $input.first().json.data || \"\";\n\n// Regex ile id'leri bul\nconst regex = /https:\\/\\/bilgisayarmf\\.firat\\.edu\\.tr\\/announcements-detail\\/(\\d+)/g;\n\nlet matches = [];\nlet match;\nwhile ((match = regex.exec(input)) !== null) {\n  matches.push(parseInt(match[1], 10));\n}\n\n// Tekrar edenleri kaldır\nconst uniqueIds = [...new Set(matches)];\n\n// Sonuçları döndür\nreturn uniqueIds.map(id => ({\n  json: { id },\n  pairedItem: { item: 0 } // n8n uyumu için\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        0
+      ],
+      "id": "24be2093-e5db-4c82-9096-24fb6f4d6789",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "duyurular",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "idd",
+              "keyValue": "1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        192
+      ],
+      "id": "2acde2e5-1049-4d7c-ba77-397d375aa404",
+      "name": "get1",
+      "notesInFlow": false,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "2HEUPmuwvG4U40lk",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bed2e76d-44cf-4c91-907a-802db70b478e",
+              "leftValue": "={{ $json.value }}",
+              "rightValue": "={{ $('Code in JavaScript2').item.json.id }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        192
+      ],
+      "id": "565bcb26-7f57-44fe-b2c6-d8832eec0223",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "url": "=https://bilgisayarmf.firat.edu.tr/announcements-detail/{{ $('Code in JavaScript2').item.json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        192
+      ],
+      "id": "4aa64e58-a66f-4dfe-8822-a1d955648380",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "list",
+              "cssSelector": ".new-section-detail-explanation p , .new-section-detail-title h3",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        192
+      ],
+      "id": "1fa9017d-7f8f-47c4-b98e-51325ebdc5c4",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst cleaned = items.map(item => {\n  const list = item.json.list;\n\n  const title = list[0].trim();\n  const content = list.slice(1).map(el => el.trim()).filter(el => el.length > 0).join(' ');\n\n  const text = `${title}\\n${content}`;\n\n  return { json: { text } };\n});\n\nreturn cleaned;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        192
+      ],
+      "id": "c6ad7187-9c4b-4b24-9996-e7cc41a13ae9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "duyurular",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "idd",
+              "condition": "eq",
+              "keyValue": "1"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "value",
+              "fieldValue": "={{ $json.maxId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        528,
+        384
+      ],
+      "id": "7d529840-6e81-4502-97d3-0f928273514a",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "2HEUPmuwvG4U40lk",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "022285ee-4c37-45b9-be8e-36f93557f26c",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Code in JavaScript2\" node'undan gelen tüm itemları al\nconst items = $items(\"Code in JavaScript2\");\n\nconst ids = items\n  .map(i => Number(i.json.id)) // id'yi sayıya çevir\n  .filter(n => !isNaN(n));    // geçerli sayılar kalır\n\nconst maxId = ids.length > 0 ? Math.max(...ids) : null;\n\nreturn [\n  {\n    json: { maxId }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        384
+      ],
+      "id": "f564245d-b637-4d63-b8fb-63d04b7425e8",
+      "name": "ENB"
+    },
+    {
+      "parameters": {
+        "chatId": "-1003161244237",
+        "text": "=Yeni duyuru:\n{{ $json.text }}\n",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        192
+      ],
+      "id": "1cff5d6c-6830-4d76-af42-ae33366710aa",
+      "name": "Send a text message1",
+      "webhookId": "35beef50-cab4-42a6-a635-5b86c3d01b0d",
+      "retryOnFail": false,
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "MNHxffjpCbhk4GVY",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1003161244237",
+        "text": "=Duyuru linki:\nhttps://bilgisayarmf.firat.edu.tr/announcements-detail/{{ $('Code in JavaScript2').item.json.id }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        192
+      ],
+      "id": "5714098f-c2a3-4b83-8936-b30b6997f4f5",
+      "name": "Send a text message",
+      "webhookId": "35beef50-cab4-42a6-a635-5b86c3d01b0d",
+      "retryOnFail": false,
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "MNHxffjpCbhk4GVY",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "get1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get1": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ENB": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "ENB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2f3d7064-1e0e-431d-82d8-9e564d6eaa16",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "04c1e85db4d21f3c3601ee14a92224fd8c4a98577484f4d54b6ff6968b56bda1"
+  },
+  "id": "pP5EOMSycXfKPq2k",
+  "tags": []
+}
