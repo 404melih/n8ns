@@ -1,3 +1,2 @@
 # n8ns
-n8n otomasyonlarım
-tyhjukl
+Bu repo oluşturduğum n8n projerimi açık olarak yayınlamak için oluşturulmuştur
