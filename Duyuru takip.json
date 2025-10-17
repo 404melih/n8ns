@@ -9,8 +9,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        192,
-        0
+        864,
+        -176
       ],
       "id": "a0db6ca1-96d9-4720-9618-b17704958103",
       "name": "HTTP Request"
@@ -22,8 +22,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        384,
-        0
+        1056,
+        -176
       ],
       "id": "24be2093-e5db-4c82-9096-24fb6f4d6789",
       "name": "Code in JavaScript2"
@@ -44,8 +44,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        0,
-        192
+        64,
+        -176
       ],
       "id": "2acde2e5-1049-4d7c-ba77-397d375aa404",
       "name": "get1",
@@ -70,7 +70,7 @@
           "conditions": [
             {
               "id": "bed2e76d-44cf-4c91-907a-802db70b478e",
-              "leftValue": "={{ $json.value }}",
+              "leftValue": "={{ $('get1').item.json.value }}",
               "rightValue": "={{ $('Code in JavaScript2').item.json.id }}",
               "operator": {
                 "type": "number",
@@ -85,8 +85,8 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
       "position": [
-        192,
-        192
+        112,
+        96
       ],
       "id": "565bcb26-7f57-44fe-b2c6-d8832eec0223",
       "name": "Filter"
@@ -99,8 +99,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        384,
-        192
+        288,
+        96
       ],
       "id": "4aa64e58-a66f-4dfe-8822-a1d955648380",
       "name": "HTTP Request1"
@@ -122,8 +122,8 @@
       "type": "n8n-nodes-base.html",
       "typeVersion": 1.2,
       "position": [
-        528,
-        192
+        432,
+        96
       ],
       "id": "1fa9017d-7f8f-47c4-b98e-51325ebdc5c4",
       "name": "HTML"
@@ -135,8 +135,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        672,
-        192
+        576,
+        96
       ],
       "id": "c6ad7187-9c4b-4b24-9996-e7cc41a13ae9",
       "name": "Code in JavaScript"
@@ -159,6 +159,10 @@
             {
               "fieldId": "value",
               "fieldValue": "={{ $json.maxId }}"
+            },
+            {
+              "fieldId": "sayac",
+              "fieldValue": "0"
             }
           ]
         }
@@ -166,8 +170,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        528,
-        384
+        432,
+        288
       ],
       "id": "7d529840-6e81-4502-97d3-0f928273514a",
       "name": "Update a row",
@@ -192,8 +196,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        0,
-        0
+        -96,
+        -176
       ],
       "id": "022285ee-4c37-45b9-be8e-36f93557f26c",
       "name": "Schedule Trigger"
@@ -205,8 +209,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        368,
-        384
+        272,
+        288
       ],
       "id": "f564245d-b637-4d63-b8fb-63d04b7425e8",
       "name": "ENB"
@@ -223,8 +227,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        816,
-        192
+        720,
+        96
       ],
       "id": "1cff5d6c-6830-4d76-af42-ae33366710aa",
       "name": "Send a text message1",
@@ -251,8 +255,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        976,
-        192
+        880,
+        96
       ],
       "id": "5714098f-c2a3-4b83-8936-b30b6997f4f5",
       "name": "Send a text message",
@@ -267,6 +271,141 @@
         }
       },
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "duyurular",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "idd",
+              "condition": "eq",
+              "keyValue": "1"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "sayac",
+              "fieldValue": "={{ $json.sayac + 1 }}\n"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -160
+      ],
+      "id": "8b506d09-598f-46e5-a74d-9dfa217c732a",
+      "name": "Update a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "2HEUPmuwvG4U40lk",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1003161244237",
+        "text": "=3 gündür yeni duyuru yok ve bot aktif\nEndişelenme :)",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        512,
+        -288
+      ],
+      "id": "7700be4a-60bf-43f7-9d72-778105792555",
+      "name": "Send a text message2",
+      "webhookId": "35beef50-cab4-42a6-a635-5b86c3d01b0d",
+      "retryOnFail": false,
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "MNHxffjpCbhk4GVY",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "duyurular",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "idd",
+              "condition": "eq",
+              "keyValue": "1"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "sayac",
+              "fieldValue": "0"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -288
+      ],
+      "id": "35eb96b5-1e8a-4bdc-aac1-98c3668275da",
+      "name": "Update a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "2HEUPmuwvG4U40lk",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ad346e1d-7c59-4cae-a380-6c5218bb576f",
+              "leftValue": "={{ $json.sayac }}",
+              "rightValue": 216,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        -176
+      ],
+      "id": "6498ea0e-545c-470f-94de-c786e2c46e4d",
+      "name": "If"
     }
   ],
   "pinData": {},
@@ -286,7 +425,7 @@
       "main": [
         [
           {
-            "node": "get1",
+            "node": "Filter",
             "type": "main",
             "index": 0
           }
@@ -297,7 +436,7 @@
       "main": [
         [
           {
-            "node": "Filter",
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -352,7 +491,7 @@
       "main": [
         [
           {
-            "node": "HTTP Request",
+            "node": "get1",
             "type": "main",
             "index": 0
           }
@@ -391,13 +530,69 @@
           }
         ]
       ]
+    },
+    "Update a row": {
+      "main": [
+        []
+      ]
+    },
+    "Update a row2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "2f3d7064-1e0e-431d-82d8-9e564d6eaa16",
+  "versionId": "e9019b65-33f5-4281-a92f-0c8109a63f02",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "04c1e85db4d21f3c3601ee14a92224fd8c4a98577484f4d54b6ff6968b56bda1"
